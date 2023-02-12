@@ -3,6 +3,7 @@
     <h2>{{ blog.title }}</h2>
     <p><a href="{% url 'edit_blog' blog.id %}">Modifier le billet</a></p>
     <img src="{{ blog.photo.image.url }}">
+    <p>Nb de mots : {{ blog.word_count }}</p>
     <p>{{ blog.photo.caption }}</p>
     <p>{{ blog.content }}</p>
 {% endblock content %}
