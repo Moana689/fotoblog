@@ -61,3 +61,17 @@ def blog_and_photo_upload(request):
 def view_blog(request, blog_id):
     blog = get_object_or_404(models.Blog, id=blog_id)
     return render(request, 'blog/view_blog.html', {'blog': blog})
+
+
+@login_required
+def edit_blog(request, blog_id):
+    blog = get_object_or_404(models.Blog, id=blog_id)
+    edit_form = forms.BlogForm(instance=blog)
+    delete_form = forms.DeleteBlogForm()
+    if request.method == 'POST':
+        pass
+    context = {
+        'edit_form': edit_form,
+        'delete_form': delete_form,
+    }
+    return render(request, 'blog/edit_blog.html', {'context': context})
