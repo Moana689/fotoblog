@@ -21,12 +21,12 @@ class Photo(models.Model):
 
     # override de la méthode Photo.save()
     # on reprend l'entête de la fonction d'origine
-    # on appel resige_image()
     # super() assure la compatibilité entre cette méthode et la méthode d'origine
-    # RESULTAT : Toutes les photos seront redimensionnées avant d'être sauvegardées !
+    # on appel resige_image()
+    # RESULTAT : Toutes les photo seront redimensionnées avant d'être sauvegarder !
     def save(self, *args, **kwargs):
-        self.resize_image()
         super().save(*args, **kwargs)
+        self.resize_image()
 
 
 class Blog(models.Model):
@@ -36,11 +36,3 @@ class Blog(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     starred = models.BooleanField(default=False)
-    word_count = models.IntegerField(default=0)
-
-    def _get_word_count(self):
-        return len(self.content.split())
-
-    def save(self, *args, **kwargs):
-        self.word_count = self._get_word_count()
-        super().save(*args, **kwargs)
