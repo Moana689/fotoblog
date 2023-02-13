@@ -48,6 +48,7 @@ urlpatterns = [
     path('blog/edit/<int:blog_id>', blog.views.edit_blog, name='edit_blog'),
     path('photo/upload', blog.views.photo_upload, name='photo_upload'),
     path('photo/upload-multiple/', blog.views.create_multiple_photos, name='create_multiple_photos'),
+    path('follow-users/', blog.views.follow_users, name='follow_users')
 ]
 
 # TODO: Trouver une méthode d'upload d'image plus propre pour de la prod

@@ -23,7 +23,7 @@ class Photo(models.Model):
     # on reprend l'entête de la fonction d'origine
     # super() assure la compatibilité entre cette méthode et la méthode d'origine
     # on appel resige_image()
-    # RESULTAT : Toutes les photo seront redimensionnées avant d'être sauvegarder !
+    # RESULTAT : Toutes les photos seront redimensionnées avant d'être sauvegardées !
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.resize_image()
@@ -33,6 +33,17 @@ class Blog(models.Model):
     photo = models.ForeignKey(Photo, null=True, on_delete=models.SET_NULL, blank=True)
     title = models.CharField(max_length=128)
     content = models.CharField(max_length=5000)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    contributors = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, through='BlogContributor', related_name='contributions')
     date_created = models.DateTimeField(auto_now_add=True)
     starred = models.BooleanField(default=False)
+
+
+class BlogContributor(models.Model):
+    contributor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    blog = models.ForeignKey(Blog, on_delete=models.CASCADE)
+    contribution = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        unique_together = ('contributor', 'blog')

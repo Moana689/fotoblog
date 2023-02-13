@@ -1,15 +1,33 @@
+from itertools import chain
+
 from django.contrib.auth.decorators import login_required, permission_required
+from django.db.models import Q
 from django.forms import formset_factory
 from django.shortcuts import render, redirect, get_object_or_404
+
 
 from . import forms, models
 
 
 @login_required
 def home(request):
-    photos = models.Photo.objects.all()
-    blogs = models.Blog.objects.all()
-    return render(request, 'blog/home.html', context={'photos': photos, 'blogs': blogs})
+    # recherche de champs via ORM
+    # filter() : applique un filter au QuerySet renvoyé
+    # exclude() : exclu des éléments du QuerySet
+    # Q : objet qui stocque une requête => Plus souple
+    blogs = models.Blog.objects.filter(
+        Q(contributors__in=request.user.follows.all()) | Q(starred=True))
+    photos = models.Photo.objects.filter(uploader__in=request.user.follows.all()).exclude(blog__in=blogs)
+
+    blogs_and_photos = sorted(
+        chain(blogs, photos),
+        key=lambda instance: instance.date_created,
+        reverse=True
+    )
+    context = {
+        'blogs_and_photos': blogs_and_photos,
+    }
+    return render(request, 'blog/home.html', context=context)
 
 
 @login_required
@@ -34,21 +52,22 @@ def create_multiple_photos(request):
     PhotoFormset = formset_factory(forms.PhotoForm, extra=4)
     formset = PhotoFormset()
     if request.method == 'POST':
-        for form in formset:
-            if form.cleaned_date:
-                photo = form.save(commit=False)
-                photo.uploader = request.user
-                photo.save()
-        return redirect('home')
-
+        formset = PhotoFormset(request.POST, request.FILES)
+        if formset.is_valid():
+            for form in formset:
+                if form.cleaned_data:
+                    photo = form.save(commit=False)
+                    photo.uploader = request.user
+                    photo.save()
+            return redirect('home')
     return render(request, 'blog/create_multiple_photos.html', {'formset': formset})
 
 
 # Vue permettant de créer 2 models (photo et blog) avec un seul formulaire
 
-@permission_required('blog.add_photo', raise_exception=True)
-@permission_required('blog.add_blog', raise_exception=True)
+
 @login_required
+@permission_required('blog.add_photo', 'blog.add_blog')
 def blog_and_photo_upload(request):
     blog_form = forms.BlogForm()
     photo_form = forms.PhotoForm()
@@ -69,6 +88,7 @@ def blog_and_photo_upload(request):
             blog.author = request.user
             blog.photo = photo
             blog.save()
+            blog.contributors.add(request.user, through_defaults={'contribution': 'Auteur principal'})
 
             return redirect('home')
     context = {
@@ -108,3 +128,14 @@ def edit_blog(request, blog_id):
         'delete_form': delete_form,
     }
     return render(request, 'blog/edit_blog_post.html', context=context)
+
+
+@login_required
+def follow_users(request):
+    form = forms.FollowUsersForm(instance=request.user)
+    if request.method == 'POST':
+        form = forms.FollowUsersForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('home')
+    return render(request, 'blog/follow_users_form.html', context={'form': form})

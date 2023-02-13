@@ -16,6 +16,7 @@ class User(AbstractUser):
         'self',
         limit_choices_to={'role': CREATOR},
         symmetrical=False,
+        verbose_name='suit',
     )
 
     def save(self, *args, **kwargs):
