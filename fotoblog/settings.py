@@ -88,18 +88,20 @@ DATABASES = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {
-            'min_length': 8,
-        }
-    },
-    {
-        'NAME': 'authentication.validators.ContainsLetterValidator',
-    },
-    {
-        'NAME': 'authentication.validators.ContainsNumberValidator',
-    },
+    # TODO: activer les validators pour la mise en prod
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    #     'OPTIONS': {
+    #         'min_length': 8,
+    #     }
+    # },
+    # {
+    #     'NAME': 'authentication.validators.ContainsLetterValidator',
+    # },
+    # {
+    #     'NAME': 'authentication.validators.ContainsNumberValidator',
+    # },
+
     # {
     #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     # },

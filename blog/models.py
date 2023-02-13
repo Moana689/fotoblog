@@ -36,3 +36,11 @@ class Blog(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True)
     starred = models.BooleanField(default=False)
+
+    # TODO:check lib 'Django Guardian' et 'Rules' pour appliquer des permissions personnalisées aux instances
+    # permission personnalisée
+    # ATTENTION appliquée à un modèle uniquement !
+    class Meta:
+        permissions = [
+            ('change_blig_title', 'Peut changer le titre d''un billet de blog')
+        ]
